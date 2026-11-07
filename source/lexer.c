@@ -70,13 +70,9 @@ static bool lexer_skip_whitespaces(Lexer *lexer)
 
 static bool lexer_can_start_comment(const Lexer *lexer)
 {
-    if (lexer_peek(lexer) != '/') {
-        return false;
-    }
-    if (!lexer_inbounds_by(lexer, 1)) {
-        return false;
-    }
-    return true;
+    return
+        lexer_peek(lexer) == '/' &&
+        lexer_inbounds_by(lexer, 1);
 }
 
 static bool lexer_skip_single_line_comment(Lexer *lexer)
@@ -176,9 +172,20 @@ static bool lexer_skip_no_ops(Lexer *lexer)
 
 static bool lexer_tokenize_identifier(Lexer *lexer, Token **out_token)
 {
-    (void)lexer;
-    (void)out_token;
-    return false;
+    if (!char_can_begin_identifier(lexer_peek(lexer))) {
+        return false;
+    }
+
+    Token *token = lexer_make_token(lexer, TOKEN_IDENTIFIER);
+    lexer_advance(lexer);
+
+    while (lexer_inbounds(lexer) && char_can_continue_identifier(lexer_peek(lexer))) {
+        lexer_advance(lexer);
+    }
+    token->length = lexer->position - token->position;
+
+    *out_token = token;
+    return true;
 }
 
 static bool lexer_tokenize_names(Lexer *lexer, Token **out_token)

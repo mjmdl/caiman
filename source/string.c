@@ -116,3 +116,18 @@ bool char_is_newline(char char_)
     // FIXME: CRLF?
     return char_ == '\n';
 }
+
+bool char_can_begin_identifier(char char_)
+{
+    return
+        (char_ >= 'a' && char_ <= 'z') ||
+        (char_ >= 'A' && char_ <= 'Z') ||
+        char_ == '_';
+}
+
+bool char_can_continue_identifier(char char_)
+{
+    return
+        char_can_begin_identifier(char_) ||
+        (char_ >= '0' && char_ <= '9');
+}

@@ -33,4 +33,8 @@ bool char_is_whitespace(char char_);
 
 bool char_is_newline(char char_);
 
+bool char_can_begin_identifier(char char_);
+
+bool char_can_continue_identifier(char char_);
+
 #endif // STRING_H
