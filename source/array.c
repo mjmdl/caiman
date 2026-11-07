@@ -40,7 +40,8 @@ void array_resize(Array *array, size_t new_capacity)
         return;
     }
 
-    array->data = memory_resize(array->data, new_capacity);
+    size_t new_size = new_capacity * array->stride;
+    array->data = memory_resize(array->data, new_size);
     array->capacity = new_capacity;
     if (array->count > new_capacity) {
         array->count = new_capacity;
@@ -123,7 +124,8 @@ void array_remove(Array *array, size_t index, void *out)
         memory_copy(from, into, bytes_ahead);
     }
 
-    memory_zero(slot, array->stride);
+    uint8_t *last_slot = (uint8_t *)array->data + ((array->count - 1) * array->stride);
+    memory_zero(last_slot, array->stride);
     array->count -= 1;
 }
 

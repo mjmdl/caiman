@@ -19,13 +19,11 @@ String8 string8_wrap_cstring(const char *data)
     return string8_wrap(data, cstring_length(data));
 }
 
-String8 string8_slice(String8 original, size_t from, size_t to)
+String8 string8_slice(String8 original, size_t index, size_t length)
 {
     assert((original.length == 0) || (original.data != NULL));
-    assert(from <= to);
 
-    size_t length = to - from;
-    const char *data = original.data + from;
+    const char *data = original.data + index;
     return string8_wrap(data, length);
 }
 

@@ -56,7 +56,7 @@ void memory_copy(const void *from_memory, void *into_memory, size_t size)
 
     const uint8_t *from = from_memory;
     uint8_t *into = into_memory;
-    for (size_t i = 0; i < size; i += 1) {
-        into[i] = from[i];
+    for (size_t i = size; i > 0; i -= 1) {
+        into[i - 1] = from[i - 1];
     }
 }

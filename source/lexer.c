@@ -298,7 +298,7 @@ static bool lexer_tokenize_string_template(Lexer *lexer, Token **out_token)
 
 static bool lexer_tokenize_punctuation(Lexer *lexer, Token **out_token)
 {
-    String8 lexeme = string8_slice(lexer->code, lexer->position, lexer->code.length);
+    String8 lexeme = string8_slice(lexer->code, lexer->position, lexer->code.length - lexer->position);
     size_t length = 0;
     Token_Kind punctuation = token_kind_match_punctuations(lexeme, &length);
     if (punctuation == TOKEN_UNKNOWN) {
@@ -320,6 +320,7 @@ static bool lexer_tokenize_end_of_input(Lexer *lexer, Token **out_token)
     }
 
     *out_token = lexer_make_token(lexer, TOKEN_END_OF_INPUT);
+    (*out_token)->length = 0;
     return true;
 }
 
@@ -378,6 +379,9 @@ Array lexer_tokenize_all(Lexer *lexer)
 
 String8 lexer_lexeme(const Lexer *lexer, const Token *token)
 {
+    assert(lexer != NULL);
+    assert(token != NULL);
+
     const char *data = lexer->code.data + token->position;
     String8 result = string8_wrap(data, token->length);
     return result;
