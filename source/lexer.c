@@ -179,7 +179,10 @@ static bool lexer_tokenize_identifier(Lexer *lexer, Token **out_token)
     Token *token = lexer_make_token(lexer, TOKEN_IDENTIFIER);
     lexer_advance(lexer);
 
-    while (lexer_inbounds(lexer) && char_can_continue_identifier(lexer_peek(lexer))) {
+    while (
+        lexer_inbounds(lexer) &&
+        char_can_continue_identifier(lexer_peek(lexer)))
+    {
         lexer_advance(lexer);
     }
     token->length = lexer->position - token->position;
@@ -220,9 +223,77 @@ static bool lexer_tokenize_number(Lexer *lexer, Token **out_token)
 
 static bool lexer_tokenize_string(Lexer *lexer, Token **out_token)
 {
-    (void)lexer;
-    (void)out_token;
-    return false;
+    if (lexer_peek(lexer) != '"') {
+        return false;
+    }
+    lexer_advance(lexer);
+
+    Token *token = lexer_make_token(lexer, TOKEN_STRING);
+    while (lexer_inbounds(lexer)) {
+        if (lexer_peek(lexer) == '"') {
+            lexer_advance(lexer);
+
+            if (!lexer_inbounds(lexer) || lexer_peek(lexer) != '"') {
+                break;
+            }
+        }
+        lexer_advance(lexer);
+    }
+    token->length = lexer->position - token->position - 1;
+
+    *out_token = token;
+    return true;
+}
+
+static bool lexer_tokenize_string_template(Lexer *lexer, Token **out_token)
+{
+    if (lexer_peek(lexer) != '$' ||
+        !lexer_inbounds_by(lexer, 1) ||
+        lexer_peek_by(lexer, 1) != '"')
+    {
+        return false;
+    }
+    lexer_advance_by(lexer, 2);
+
+    Token *first_token = lexer_make_token(lexer, TOKEN_STRING_TEMPLATE);
+    Token *current_token = first_token;
+    while (lexer_inbounds(lexer)) {
+        if (lexer_peek(lexer) == '"') {
+            lexer_advance(lexer);
+
+            if (lexer_inbounds(lexer) && lexer_peek(lexer) == '"') {
+                lexer_advance(lexer);
+            } else {
+                break;
+            }
+
+            continue;
+        }
+
+        if (lexer_peek(lexer) == '{') {
+            lexer_advance(lexer);
+
+            if (lexer_inbounds(lexer) && lexer_peek(lexer) == '{') {
+                lexer_advance(lexer);
+                continue;
+            }
+            current_token->length = lexer->position - current_token->position - 1;
+
+            while (lexer_inbounds(lexer) && lexer_peek(lexer) != '}') {
+                lexer_tokenize(lexer);
+            }
+            lexer_advance(lexer);
+            current_token = lexer_make_token(lexer, TOKEN_STRING_TEMPLATE);
+
+            continue;
+        }
+        
+        lexer_advance(lexer);
+    }
+    current_token->length = lexer->position - current_token->position - 1;
+
+    *out_token = first_token;
+    return true;
 }
 
 static bool lexer_tokenize_punctuation(Lexer *lexer, Token **out_token)
@@ -264,6 +335,7 @@ Token lexer_tokenize(Lexer *lexer)
     if (lexer_tokenize_names(lexer, &token) ||
         lexer_tokenize_annotation(lexer, &token) ||
         lexer_tokenize_string(lexer, &token) ||
+        lexer_tokenize_string_template(lexer, &token) ||
         lexer_tokenize_number(lexer, &token) ||
         lexer_tokenize_punctuation(lexer, &token))
     {

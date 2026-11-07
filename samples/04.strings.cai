@@ -1,0 +1,17 @@
+empty_string                   := "";
+some_text                      := "Hello, World!";
+escaped_quotes                 := "unquoted ""QUOTED"" unquoted ""QUOTED""";
+whitespace_string              := "        eight spaces
+
+
+third line and three more spaces   ";
+whitespace_only                := "
+
+                                  
+
+                                  ";
+string_with_empty_template     := $"{}";
+string_with_nothing_at_the_end := $"left {69}";
+string_with_nothing_at_begin   := $"{42} right";
+recursive_string_template      := $"outer{$"inner{""}inner"}outer";
+recursive_string_template_fn   := $"a{foo($"b{"bar"}c").baz("d")}e";

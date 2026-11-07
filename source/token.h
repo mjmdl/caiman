@@ -9,7 +9,8 @@ typedef enum Token_Kind {
 
     TOKEN_IDENTIFIER,           // Literal: /[a-zA-Z_][a-zA-Z0-9_]*/
     TOKEN_NUMBER,               // Literal: /(0[xX][0-9a-fA-F]+|0[bB][01]+|[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?)/
-    TOKEN_STRING,               // Literal: /\$"([^"\\]|\\.|{{|}})*"/
+    TOKEN_STRING,               // Literal: /"([^"\\]|\\.)*"/
+    TOKEN_STRING_TEMPLATE,      // Literal: /\$"([^"\\]|\\.|{{|}})*"/
     TOKEN_ANNOTATION,           // Literal: ///[^\n]*
 
     TOKEN_IMPORT,               // Keyword: `import`

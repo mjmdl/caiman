@@ -60,6 +60,7 @@ String8 token_kind_name(Token_Kind kind)
     CASE(IDENTIFIER);
     CASE(NUMBER);
     CASE(STRING);
+    CASE(STRING_TEMPLATE);
     CASE(ANNOTATION);
 
     CASE(IMPORT);

@@ -6,7 +6,7 @@
 
 String8 string8_wrap(const char *data, size_t length)
 {
-    assert((data == NULL) == (length == 0));
+    assert((length == 0) || (data != NULL));
 
     String8 string = {
         .data = data,
