@@ -1,0 +1,30 @@
+fibonnaci :: fn (n: $T) -> T
+{
+    current: mut T = 0;
+    next: mut T = 1;
+    for 2 .. n {
+        sum := current + next;
+        current = next;
+        next = sum;
+    }
+    return current;
+}
+
+fibonnaci_array :: fn (ns: []mut $T)
+{
+    c := ns.count();
+    if c > 0 {
+        ns[0] = 0;
+    }
+    if c > 1 {
+        ns[1] = 1;
+    }
+    for i := 2 .. c - 1 {
+        ns[i] = ns[i - 1] + ns[i - 2];
+    }
+}
+
+fib :: fn (n: $T) -> T
+{
+    return if n > 1 then fib(n - 1) + fib(n - 2) else n;
+}

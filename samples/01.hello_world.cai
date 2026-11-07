@@ -1,0 +1,6 @@
+import "core/format";
+
+main :: fn ()
+{
+    print_line("Hello, World!");
+}

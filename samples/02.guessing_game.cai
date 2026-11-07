@@ -1,0 +1,32 @@
+import "core/format";
+rand :: import "core/random";
+time :: import "core/time";
+
+main :: fn ()
+{
+    MIN :: 1;
+    MAX :: 100;
+
+    rng := rand.generator_new(seed<-time.wallclock_now().miliseconds().to(int32));
+    secret := rng.next(int32, MIN, MAX);
+
+    for {
+        case guess_a_number(MIN, MAX)
+        if > secret {
+            print_line("Too high!");
+        } else if < secret {
+            print_line("Too low!");
+        } else {
+            print_line("Correct!");
+            break;
+        }
+    }
+}
+
+guess_a_number :: fn (min: int32, max: int32) -> int32
+{
+    for {
+        print($"Guess a number between {min} and {max}: ");
+        return scan_line(int32) catch continue;
+    }
+}
