@@ -298,9 +298,29 @@ static bool lexer_tokenize_string_template(Lexer *lexer, Token **out_token)
 
 static bool lexer_tokenize_punctuation(Lexer *lexer, Token **out_token)
 {
-    (void)lexer;
-    (void)out_token;
-    return false;
+    String8 lexeme = string8_slice(lexer->code, lexer->position, lexer->code.length);
+    size_t length = 0;
+    Token_Kind punctuation = token_kind_match_punctuations(lexeme, &length);
+    if (punctuation == TOKEN_UNKNOWN) {
+        return false;
+    }
+
+    Token *token = lexer_make_token(lexer, punctuation);
+    token->length = length;
+    lexer_advance_by(lexer, length);
+
+    *out_token = token;
+    return true;
+}
+
+static bool lexer_tokenize_end_of_input(Lexer *lexer, Token **out_token)
+{
+    if (lexer_inbounds(lexer)) {
+        return false;
+    }
+
+    *out_token = lexer_make_token(lexer, TOKEN_END_OF_INPUT);
+    return true;
 }
 
 Lexer lexer_new(String8 code)
@@ -332,7 +352,8 @@ Token lexer_tokenize(Lexer *lexer)
     lexer_skip_no_ops(lexer);
 
     Token *token = NULL;
-    if (lexer_tokenize_names(lexer, &token) ||
+    if (lexer_tokenize_end_of_input(lexer, &token) ||
+        lexer_tokenize_names(lexer, &token) ||
         lexer_tokenize_annotation(lexer, &token) ||
         lexer_tokenize_string(lexer, &token) ||
         lexer_tokenize_string_template(lexer, &token) ||
@@ -351,9 +372,7 @@ Array lexer_tokenize_all(Lexer *lexer)
 {
     assert(lexer != NULL);
 
-    while (lexer_inbounds(lexer)) {
-        lexer_tokenize(lexer);
-    }
+    while (lexer_tokenize(lexer).kind != TOKEN_END_OF_INPUT) {}
     return lexer->tokens;
 }
 

@@ -76,6 +76,7 @@ typedef enum Token_Kind {
     TOKEN_CARET_EQUAL,          // Punctuation: `^=`
     TOKEN_TILDE,                // Punctuation: `~`
     TOKEN_TILDE_EQUAL,          // Punctuation: `~=`
+    TOKEN_DOLLAR,               // Punctuation: `$`
 
     ENUM_TOKEN_KIND_COUNT,
 } Token_Kind;
@@ -89,6 +90,8 @@ typedef struct Token {
 } Token;
 
 Token_Kind token_kind_match_keywords(String8 lexeme);
+
+Token_Kind token_kind_match_punctuations(String8 lexeme, size_t *out_length);
 
 String8 token_kind_name(Token_Kind kind);
 

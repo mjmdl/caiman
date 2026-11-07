@@ -19,6 +19,16 @@ String8 string8_wrap_cstring(const char *data)
     return string8_wrap(data, cstring_length(data));
 }
 
+String8 string8_slice(String8 original, size_t from, size_t to)
+{
+    assert((original.length == 0) || (original.data != NULL));
+    assert(from <= to);
+
+    size_t length = to - from;
+    const char *data = original.data + from;
+    return string8_wrap(data, length);
+}
+
 bool string8_equal(String8 left, String8 right)
 {
     if (left.length != right.length) {

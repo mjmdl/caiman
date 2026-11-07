@@ -48,6 +48,187 @@ Token_Kind token_kind_match_keywords(String8 lexeme)
     return TOKEN_UNKNOWN;
 }
 
+Token_Kind token_kind_match_punctuations(String8 lexeme, size_t *out_length)
+{
+    if (lexeme.length == 0) {
+        return TOKEN_UNKNOWN;
+    }
+
+    switch (lexeme.data[0]) {
+    case '(':
+        *out_length = 1;
+        return TOKEN_PARENTHESIS_LEFT;
+
+    case ')':
+        *out_length = 1;
+        return TOKEN_PARENTHESIS_RIGHT;
+
+    case '{':
+        *out_length = 1;
+        return TOKEN_CURLY_BRACE_LEFT;
+
+    case '}':
+        *out_length = 1;
+        return TOKEN_CURLY_BRACE_RIGHT;
+
+    case '[':
+        *out_length = 1;
+        return TOKEN_SQUARE_BRACKET_LEFT;
+
+    case ']':
+        *out_length = 1;
+        return TOKEN_SQUARE_BRACKET_RIGHT;
+
+    case '.':
+        if (lexeme.length > 1) {
+            if (lexeme.data[1] == '&') {
+                *out_length = 2;
+                return TOKEN_DOT_AMPERSAND;
+            }
+            if (lexeme.data[1] == '*') {
+                *out_length = 2;
+                return TOKEN_DOT_STAR;
+            }
+        }
+        *out_length = 1;
+        return TOKEN_DOT;
+
+    case ',':
+        *out_length = 1;
+        return TOKEN_COMMA;
+
+    case ';':
+        *out_length = 1;
+        return TOKEN_SEMICOLON;
+
+    case ':':
+        *out_length = 1;
+        return TOKEN_COLON;
+
+    case '=':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_EQUAL_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_EQUAL;
+
+    case '<':
+        if (lexeme.length > 1) {
+            if (lexeme.data[1] == '=') {
+                *out_length = 2;
+                return TOKEN_LESS_EQUAL;
+            }
+            if (lexeme.data[1] == '>') {
+                *out_length = 2;
+                return TOKEN_DIAMOND;
+            }
+        }
+        *out_length = 1;
+        return TOKEN_LESS;
+
+    case '>':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_GREATER_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_GREATER;
+
+    case '+':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_PLUS_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_PLUS;
+
+    case '-':
+        if (lexeme.length > 1) {
+            if (lexeme.data[1] == '=') {
+                *out_length = 2;
+                return TOKEN_MINUS_EQUAL;
+            }
+            if (lexeme.data[1] == '>') {
+                *out_length = 2;
+                return TOKEN_ARROW;
+            }
+        }
+        *out_length = 1;
+        return TOKEN_MINUS;
+
+    case '*':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_STAR_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_STAR;
+
+    case '/':
+        if (lexeme.length > 1) {
+            if (lexeme.data[1] == '=') {
+                *out_length = 2;
+                return TOKEN_SLASH_EQUAL;
+            }
+            if (lexeme.data[1] == '/') {
+                return TOKEN_UNKNOWN;
+            }
+        }
+        *out_length = 1;
+        return TOKEN_SLASH;
+
+    case '%':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_PERCENT_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_PERCENT;
+
+    case '|':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_PIPE_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_PIPE;
+
+    case '&':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_AMPERSAND_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_AMPERSAND;
+
+    case '^':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_CARET_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_CARET;
+
+    case '~':
+        if (lexeme.length > 1 && lexeme.data[1] == '=') {
+            *out_length = 2;
+            return TOKEN_TILDE_EQUAL;
+        }
+        *out_length = 1;
+        return TOKEN_TILDE;
+
+    case '$':
+        if (lexeme.length > 1 && lexeme.data[1] == '"') {
+            return TOKEN_UNKNOWN;
+        }
+        *out_length = 1;
+        return TOKEN_DOLLAR;
+    }
+
+    return TOKEN_UNKNOWN;
+}
+
 String8 token_kind_name(Token_Kind kind)
 {
     #define CASE(KIND) \
@@ -126,6 +307,7 @@ String8 token_kind_name(Token_Kind kind)
     CASE(CARET_EQUAL);
     CASE(TILDE);
     CASE(TILDE_EQUAL);
+    CASE(DOLLAR);
     default:
         return string8_wrap_literal("*invalid Token_Kind value*");
     }

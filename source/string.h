@@ -17,6 +17,8 @@ String8 string8_wrap_cstring(const char *data);
 
 #define string8_wrap_literal(literal) string8_wrap(literal, sizeof(literal))
 
+String8 string8_slice(String8 original, size_t index, size_t length);
+
 bool string8_equal(String8 left, String8 right);
 
 bool string8_equal_no_case(String8 left, String8 right);
