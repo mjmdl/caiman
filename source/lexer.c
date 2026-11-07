@@ -22,26 +22,19 @@ static char lexer_peek_by(const Lexer *lexer, ptrdiff_t offset)
     return lexer->code.data[lexer->position + offset];
 }
 
-static void lexer_advance(Lexer *lexer)
-{
-    lexer->position += 1;
-}
-
 static void lexer_advance_by(Lexer *lexer, ptrdiff_t offset)
 {
+    if (char_is_newline(lexer_peek(lexer))) {
+        lexer->line += 1;
+        lexer->line_position = lexer->position + 1;
+    }
+
     lexer->position += offset;
 }
 
-static bool lexer_newline(Lexer *lexer)
+static void lexer_advance(Lexer *lexer)
 {
-    if (!char_is_newline(lexer_peek(lexer))) {
-        return false;
-    }
-
-    lexer->position += 1;
-    lexer->line += 1;
-    lexer->line_position = lexer->position;
-    return true;
+    lexer_advance_by(lexer, 1);
 }
 
 static Token *lexer_make_token(Lexer *lexer, Token_Kind kind)
@@ -51,7 +44,7 @@ static Token *lexer_make_token(Lexer *lexer, Token_Kind kind)
         .kind = kind,
         .position = lexer->position,
         .line = lexer->line,
-        .column = lexer->position - lexer->line_position,
+        .column = lexer->position - lexer->line_position + 1,
         .length = 1};
     return token;
 }
@@ -60,9 +53,7 @@ static bool lexer_skip_whitespaces(Lexer *lexer)
 {
     bool skipped = false;
     while (lexer_inbounds(lexer) && char_is_whitespace(lexer_peek(lexer))) {
-        if (!lexer_newline(lexer)) {
-            lexer_advance(lexer);
-        }
+        lexer_advance(lexer);
         skipped = true;
     }
     return skipped;
@@ -100,7 +91,7 @@ static bool lexer_skip_single_line_comment(Lexer *lexer)
     }
 
     if (lexer_inbounds(lexer)) {
-        lexer_newline(lexer);
+        lexer_advance(lexer);
     }
     return true;
 }

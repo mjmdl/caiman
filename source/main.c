@@ -26,13 +26,17 @@ int main(int argc, char **argv)
         String8 lexeme = lexer_lexeme(&lexer, token);
         String8 kind_name = token_kind_name(token->kind);
         printf(
-            "%zu:%zu(%zu) #%zu: "STRING_FORMAT" `"STRING_FORMAT"`\n",
+            "%zu:%zu:%zu(%zu) #%zu: "STRING_FORMAT,
             token->position,
+            token->line,
             token->column,
             token->length,
             i,
-            STRING_ARGS(kind_name),
-            STRING_ARGS(lexeme));
+            STRING_ARGS(kind_name));
+        if (token->length > 0) {
+            printf(" `"STRING_FORMAT"`", STRING_ARGS(lexeme));
+        }
+        printf("\n");
     }
 
     lexer_free(&lexer);
