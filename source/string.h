@@ -35,6 +35,16 @@ bool char_is_whitespace(char char_);
 
 bool char_is_newline(char char_);
 
+bool char_is_alphabetic(char char_);
+
+bool char_is_digit(char char_);
+
+bool char_is_base2_digit(char char_);
+
+bool char_is_base8_digit(char char_);
+
+bool char_is_base16_digit(char char_);
+
 bool char_can_begin_identifier(char char_);
 
 bool char_can_continue_identifier(char char_);

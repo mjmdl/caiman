@@ -207,9 +207,73 @@ static bool lexer_tokenize_annotation(Lexer *lexer, Token **out_token)
 
 static bool lexer_tokenize_number(Lexer *lexer, Token **out_token)
 {
-    (void)lexer;
-    (void)out_token;
-    return false;
+    if (!char_is_digit(lexer_peek(lexer))) {
+        return false;
+    }
+    Token *token = lexer_make_token(lexer, TOKEN_NUMBER);
+
+    bool (*is_digit)(char) = char_is_digit;
+    if (lexer_peek(lexer) == '0' &&
+        lexer_inbounds_by(lexer, 3))
+    {
+        char anterior = lexer_peek_by(lexer, 1);
+        char posterior = lexer_peek_by(lexer, 2);
+        if (anterior == 'b' &&
+            char_is_base2_digit(posterior))
+        {
+            is_digit = char_is_base2_digit;
+            lexer_advance_by(lexer, 3);
+        } else if (
+            anterior == 'x' &&
+            char_is_base16_digit(posterior))
+        {
+            is_digit = char_is_base16_digit;
+            lexer_advance_by(lexer, 3);
+        } else {
+            lexer_advance(lexer);
+        }
+    } else {
+        lexer_advance(lexer);
+    }
+
+    bool has_dot = false;
+    while (lexer_inbounds(lexer)) {
+        char char_ = lexer_peek(lexer);
+        if (is_digit(char_)) {
+            lexer_advance(lexer);
+            continue;
+        } else if (char_ == '.') {
+            if (lexer_inbounds_by(lexer, 2) &&
+                is_digit(lexer_peek_by(lexer, 1)))
+            {
+                if (!has_dot) {
+                    has_dot = true;
+                } else {
+                    token->kind = TOKEN_UNKNOWN;
+                }
+                lexer_advance_by(lexer, 2);
+                continue;
+            }
+            break;
+        } else if (char_ == '_') {
+            if (!lexer_inbounds_by(lexer, 2) ||
+                !is_digit(lexer_peek_by(lexer, 1)))
+            {
+                token->kind = TOKEN_UNKNOWN;
+            }
+            lexer_advance(lexer);
+            continue;
+        } else if (char_is_alphabetic(char_)) {
+            token->kind = TOKEN_UNKNOWN;
+            lexer_advance(lexer);
+            continue;
+        }
+        break;
+    }
+    token->length = lexer->position - token->position;
+
+    *out_token = token;
+    return true;
 }
 
 static bool lexer_tokenize_string(Lexer *lexer, Token **out_token)
